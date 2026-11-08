@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ai-job-search-v4';
+const CACHE_NAME = 'ai-job-search-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -50,6 +50,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then((response) => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
@@ -61,7 +76,7 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => (req.mode === 'navigate' ? caches.match('./index.html') : Response.error()));
+        .catch(() => Response.error());
     })
   );
 });

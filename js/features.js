@@ -948,6 +948,13 @@ function showShortcutsModal() {
 function initSearchHubMultiSource() {
   const container = document.getElementById('multi-source-search-hub');
   if (!container) return;
+  if (typeof escapeHtml !== 'function') {
+    window.escapeHtml = function (value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
+  }
   if (!window.ScraperEngine) {
     container.innerHTML = '<div class="card"><h4>Live scraper module failed to load</h4><p style="margin-top:8px;">Hard refresh (<code>Ctrl+F5</code>). If you used this app before, an old service worker may be serving cached files: open DevTools → Application → Service Workers → Unregister, then reload. For full board access, run <code>python job_scraper/server.py</code> from the repo and open <code>http://127.0.0.1:8000</code>.</p><button class="btn btn-sm btn-primary" id="clear-sw-reload" style="margin-top:12px;">Clear service worker and reload</button></div>';
     const clearBtn = document.getElementById('clear-sw-reload');

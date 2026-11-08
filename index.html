@@ -1202,8 +1202,11 @@
   <script src="js/features.js?v=5"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+          reg.update().catch(() => {});
+        } catch (e) {}
       });
     }
   </script>
