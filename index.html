@@ -163,7 +163,7 @@
           <p class="section-subtitle">Real-time statistics synchronized from your offline job tracker.</p>
         </div>
         <div class="section-actions">
-          <button class="btn btn-sm btn-secondary" id="reset-demo-data-btn">Reset Sample Data</button>
+          <button class="btn btn-sm btn-secondary" id="reset-demo-data-btn">Clear Local Data</button>
           <button class="btn btn-sm btn-primary" onclick="switchTab('tracker')">Open Kanban Board</button>
         </div>
       </div>
@@ -294,7 +294,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             Job Portal Scraper & Aggregator
           </h2>
-          <p class="section-subtitle">Orchestrates searches across Jobindex, LinkedIn, Jobnet, FreeHire, and Jobbank.</p>
+          <p class="section-subtitle">Searches live postings across Danish job boards, global remote boards, and ATS feeds.</p>
         </div>
         <div class="section-actions">
           <div id="auto-search-toggle-container"></div>
@@ -305,6 +305,9 @@
       <!-- Multi-Source Global Search Hub -->
       <div id="multi-source-search-hub"></div>
 
+      <!-- Local AI status and controls -->
+      <div id="local-ai-panel-mount"></div>
+
       <!-- Filter Bar -->
       <div class="filter-bar">
         <div class="search-input-wrap">
@@ -313,16 +316,7 @@
         </div>
 
         <select class="filter-select" id="scraper-portal-filter">
-          <option value="all">All Portals & Sources (11)</option>
-          <option value="linkedin">LinkedIn Jobs (Worldwide)</option>
-          <option value="jobindex">Jobindex.dk</option>
-          <option value="freehire">FreeHire.me (50 ATS)</option>
-          <option value="indeed">Indeed</option>
-          <option value="glassdoor">Glassdoor</option>
-          <option value="wellfound">Wellfound (AngelList Tech)</option>
-          <option value="jobnet">Jobnet (STAR Gov)</option>
-          <option value="jobbank">Akademikernes Jobbank</option>
-          <option value="jobdanmark">Jobdanmark</option>
+          <option value="all">All Sources</option>
         </select>
 
         <select class="filter-select" id="scraper-language-filter">
@@ -1084,8 +1078,10 @@
         <button class="modal-close">&times;</button>
       </div>
       <div class="modal-body" id="modal-job-body" style="white-space: pre-line;"></div>
+      <div class="modal-ai-output" id="modal-ai-output" hidden></div>
       <div class="modal-footer">
         <a id="modal-job-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">Open Posting</a>
+        <button class="btn btn-sm btn-secondary" id="modal-ai-btn">Local AI Review</button>
         <button class="btn btn-sm btn-primary" id="modal-eval-btn">Evaluate Fit</button>
         <button class="btn btn-sm btn-coral" id="modal-tailor-btn">Tailor Application</button>
       </div>
@@ -1191,8 +1187,8 @@
         <strong>AI Job Search Web Suite</strong> &bull; MIT Licensed Open Source Project
       </div>
       <div class="footer-links">
-        <a href="https://github.com/ai-job-search-dev/ai-job-search" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
-        <a href="https://ko-fi.com/madslorentzen" target="_blank" rel="noopener noreferrer">Buy Pip a Coffee ☕</a>
+        <a href="https://github.com/CodexSidou/job-searsh" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+        <a href="README.md" target="_blank" rel="noopener noreferrer">Documentation</a>
         <a href="#dashboard" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top &uarr;</a>
       </div>
     </div>

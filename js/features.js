@@ -948,79 +948,207 @@ function showShortcutsModal() {
 function initSearchHubMultiSource() {
   const container = document.getElementById('multi-source-search-hub');
   if (!container) return;
+  if (!window.ScraperEngine) {
+    container.innerHTML = '<div class="card"><p>Live scraper module failed to load. Reload the page with the local server running.</p></div>';
+    return;
+  }
 
-  const sources = [
-    { id: 'jobindex', name: 'Jobindex.dk', dot: 'dot-jobindex', active: true },
-    { id: 'linkedin', name: 'LinkedIn', dot: 'dot-linkedin', active: true },
-    { id: 'freehire', name: 'FreeHire.me (50 ATS)', dot: 'dot-freehire', active: true },
-    { id: 'jobnet', name: 'Jobnet (STAR Gov)', dot: 'dot-jobnet', active: true },
-    { id: 'jobbank', name: 'Akademikernes Jobbank', dot: 'dot-jobbank', active: true },
-    { id: 'jobdanmark', name: 'Jobdanmark', dot: 'dot-jobdanmark', active: true },
-    { id: 'indeed', name: 'Indeed Denmark', dot: 'dot-indeed', active: false },
-    { id: 'glassdoor', name: 'Glassdoor', dot: 'dot-glassdoor', active: false }
-  ];
+  const sources = ScraperEngine.SOURCES;
+  const lastSearch = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('ai_job_last_search') || '{}');
+    } catch (e) {
+      return {};
+    }
+  })();
 
-  let chipsHtml = '';
-  sources.forEach(s => {
-    chipsHtml += `
-      <div class="source-chip ${s.active ? 'active' : ''}" data-source="${s.id}">
-        <span class="source-dot ${s.dot}"></span>
-        <span>${s.name}</span>
-      </div>
-    `;
-  });
+  const chipsHtml = sources.map((source) => `
+    <div class="source-chip active" data-source="${escapeHtml(source.id)}" title="${escapeHtml(source.region || '')}">
+      <span class="source-dot"></span>
+      <span>${escapeHtml(source.label)}</span>
+    </div>
+  `).join('');
+
+  const statusHtml = sources.map((source) => `
+    <div class="source-state" data-source-state="${escapeHtml(source.id)}">
+      <span class="source-state-dot"></span>
+      <span class="source-state-label">${escapeHtml(source.label)}</span>
+      <span class="source-state-count"></span>
+    </div>
+  `).join('');
 
   container.innerHTML = `
     <div class="search-hub-bar">
       <div class="search-main-row">
         <div style="flex:1; position:relative;">
           <svg style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--text-dim);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" class="search-main-input" id="search-hub-query" placeholder="Global search: 'AI Engineer Copenhagen', 'Python remote', 'Novo Nordisk'...">
+          <input type="text" class="search-main-input" id="search-hub-query" placeholder="Role, skills, or company, e.g. AI Engineer, Python, Novo Nordisk">
+        </div>
+        <div style="width:230px; position:relative;">
+          <input type="text" class="search-main-input" id="search-hub-location" placeholder="Location, e.g. Copenhagen">
         </div>
         <button class="search-main-btn" id="search-hub-submit-btn">
-          <span>Search All Sources</span>
+          <span>Search ${sources.length} Sources</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
 
       <div class="search-sources-row">
-        <span style="font-size:0.8rem; font-weight:700; color:var(--text-dim);">Search Sources:</span>
+        <span style="font-size:0.8rem; font-weight:700; color:var(--text-dim);">Sources:</span>
         ${chipsHtml}
+        <button type="button" class="btn btn-sm btn-secondary" id="search-hub-all">All</button>
+        <button type="button" class="btn btn-sm btn-secondary" id="search-hub-none">None</button>
       </div>
+
+      <div class="search-backend-note" id="search-hub-backend">Checking local bridge...</div>
+      <div class="source-status-grid" id="search-hub-statuses" hidden>${statusHtml}</div>
     </div>
   `;
 
-  // Toggle sources
-  container.querySelectorAll('.source-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('active');
-    });
+  const queryInput = document.getElementById('search-hub-query');
+  const locationInput = document.getElementById('search-hub-location');
+  const submitBtn = document.getElementById('search-hub-submit-btn');
+  const statusGrid = document.getElementById('search-hub-statuses');
+  const backendNote = document.getElementById('search-hub-backend');
+
+  queryInput.value = lastSearch.query || ScraperEngine.defaultQuery(AppState.candidate);
+  locationInput.value = lastSearch.location || ScraperEngine.defaultLocation(AppState.candidate);
+
+  container.querySelectorAll('.source-chip').forEach((chip) => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+  });
+  document.getElementById('search-hub-all').addEventListener('click', () => {
+    container.querySelectorAll('.source-chip').forEach((chip) => chip.classList.add('active'));
+  });
+  document.getElementById('search-hub-none').addEventListener('click', () => {
+    container.querySelectorAll('.source-chip').forEach((chip) => chip.classList.remove('active'));
   });
 
-  const queryInput = document.getElementById('search-hub-query');
-  const submitBtn = document.getElementById('search-hub-submit-btn');
+  function selectedSources() {
+    return Array.from(container.querySelectorAll('.source-chip.active')).map((chip) => chip.getAttribute('data-source'));
+  }
 
-  function executeMultiSearch() {
-    const q = queryInput.value.trim();
-    if (!q) {
-      showToast('Please type a search query first!', 'warning');
+  function paintStatus(status) {
+    const el = statusGrid.querySelector(`[data-source-state="${status.id}"]`);
+    if (!el) return;
+    el.className = 'source-state ' + status.status;
+    const count = el.querySelector('.source-state-count');
+    if (status.status === 'running') count.textContent = '...';
+    else if (status.status === 'error') count.textContent = 'error';
+    else count.textContent = String(status.count || 0);
+    el.title = status.error || (status.status === 'ok' ? `${status.count} results in ${status.ms}ms` : '');
+  }
+
+  function markAllRunning(ids) {
+    statusGrid.hidden = false;
+    sources.forEach((source) => {
+      const el = statusGrid.querySelector(`[data-source-state="${source.id}"]`);
+      if (!el) return;
+      const active = ids.indexOf(source.id) !== -1;
+      el.className = 'source-state ' + (active ? 'running' : 'idle');
+      el.querySelector('.source-state-count').textContent = active ? '...' : '-';
+      el.title = '';
+    });
+  }
+
+  async function updateBackend() {
+    const backend = await ScraperEngine.detectBackend(true);
+    if (backend) {
+      backendNote.className = 'search-backend-note online';
+      backendNote.textContent = 'Local bridge online. Danish boards and no-CORS sources are available.';
+    } else {
+      backendNote.className = 'search-backend-note offline';
+      backendNote.textContent = 'Local bridge offline. Direct sources still work; run "python job_scraper/server.py" to unlock Jobindex, Jobnet, LinkedIn, and other protected boards.';
+    }
+    return backend;
+  }
+
+  async function executeSearch(options) {
+    const opts = options || {};
+    if (ExtendedFeatures.searchRunning) return;
+    const query = queryInput.value.trim();
+    if (!query) {
+      if (!opts.silent) showToast('Type a role, skill, or company first.', 'warning');
+      return;
+    }
+    const ids = selectedSources();
+    if (!ids.length) {
+      if (!opts.silent) showToast('Select at least one source.', 'warning');
       return;
     }
 
-    const scraperInput = document.getElementById('scraper-search-input');
-    if (scraperInput) {
-      scraperInput.value = q;
+    ExtendedFeatures.searchRunning = true;
+    ExtendedFeatures.lastSearchQuery = query;
+    ExtendedFeatures.lastSearchLocation = locationInput.value.trim();
+    ExtendedFeatures.lastSearchSources = ids;
+    submitBtn.disabled = true;
+    submitBtn.querySelector('span').innerText = 'Searching...';
+    markAllRunning(ids);
+    localStorage.setItem('ai_job_last_search', JSON.stringify({
+      query: query,
+      location: locationInput.value.trim()
+    }));
+
+    try {
+      await updateBackend();
+      const result = await ScraperEngine.search({
+        query: query,
+        location: locationInput.value.trim(),
+        sources: ids,
+        candidate: AppState.candidate,
+        force: true,
+        limit: 200,
+        onProgress: paintStatus
+      });
+
+      const manual = AppState.jobs.filter((job) => job.isManual);
+      AppState.jobs = result.jobs.concat(manual);
+      localStorage.setItem('ai_job_jobs', JSON.stringify(AppState.jobs));
+
+      if (typeof renderJobsList === 'function') renderJobsList();
+      if (typeof populateRankerJobSelector === 'function') populateRankerJobSelector();
+      if (typeof populateTailorJobSelector === 'function') populateTailorJobSelector();
+
+      if (!opts.silent) {
+        const failed = Object.keys(result.sources).filter((id) => result.sources[id].status === 'error').length;
+        showToast(`${result.jobs.length} live postings from ${result.okSources}/${result.totalSources} sources${failed ? `, ${failed} unavailable` : ''}.`, result.jobs.length ? 'success' : 'warning');
+      }
+      return result;
+    } catch (error) {
+      if (!opts.silent) showToast(`Search failed: ${error.message}`, 'warning');
+      return null;
+    } finally {
+      ExtendedFeatures.searchRunning = false;
+      submitBtn.disabled = false;
+      submitBtn.querySelector('span').innerText = `Search ${sources.length} Sources`;
     }
-    renderJobsList();
-    switchTab('scraper');
-    window.location.hash = 'scraper';
-    showToast(`Aggregated search executed for: "${q}"`, 'success');
   }
 
-  submitBtn.addEventListener('click', executeMultiSearch);
-  queryInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') executeMultiSearch();
+  ExtendedFeatures.runSearchHub = executeSearch;
+
+  submitBtn.addEventListener('click', () => executeSearch());
+  [queryInput, locationInput].forEach((input) => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') executeSearch();
+    });
   });
+
+  updateBackend();
+
+  let firstRunDone = false;
+  const maybeFirstRun = () => {
+    const section = document.getElementById('tab-scraper');
+    if (firstRunDone || !section || !section.classList.contains('active')) return;
+    firstRunDone = true;
+    setTimeout(() => executeSearch({ silent: true }), 500);
+  };
+  document.querySelectorAll('a[data-tab="scraper"]').forEach((link) => {
+    link.addEventListener('click', () => setTimeout(maybeFirstRun, 50));
+  });
+  window.addEventListener('hashchange', () => setTimeout(maybeFirstRun, 50));
+  maybeFirstRun();
+
+  if (window.LocalAI) LocalAI.mountPanel('local-ai-panel-mount');
 }
 
 // ==========================================
@@ -1032,9 +1160,9 @@ function initAutoSearchEngine() {
 
   container.innerHTML = `
     <div style="display:flex; align-items:center; gap:10px;">
-      <button class="auto-search-indicator auto-search-off" id="auto-search-btn" style="cursor:pointer; border:none;">
+      <button class="auto-search-indicator auto-search-off" id="auto-search-btn" style="cursor:pointer; border:none;" title="Runs a real live search every 3 minutes">
         <span class="dot" style="width:8px; height:8px; border-radius:50%; background-color:currentColor;"></span>
-        <span id="auto-search-text">Auto-Search Watchdog: OFF</span>
+        <span id="auto-search-text">Auto-Search: OFF</span>
       </button>
     </div>
   `;
@@ -1042,23 +1170,58 @@ function initAutoSearchEngine() {
   const btn = document.getElementById('auto-search-btn');
   const txt = document.getElementById('auto-search-text');
 
-  btn.addEventListener('click', () => {
-    ExtendedFeatures.autoSearchActive = !ExtendedFeatures.autoSearchActive;
-    if (ExtendedFeatures.autoSearchActive) {
-      btn.className = 'auto-search-indicator auto-search-on';
-      txt.innerText = 'Auto-Search Watchdog: LIVE';
-      showToast('🤖 Auto-Search Watchdog activated! Scanning portals every 45s.', 'success');
+  async function runAutoSearch() {
+    if (ExtendedFeatures.autoSearchRunning || ExtendedFeatures.searchRunning) return;
+    ExtendedFeatures.autoSearchRunning = true;
+    const previous = new Set(AppState.jobs.map((job) => job.id));
+    try {
+      const result = typeof ExtendedFeatures.runSearchHub === 'function'
+        ? await ExtendedFeatures.runSearchHub({ silent: true })
+        : null;
+      if (!result) return;
+      const fresh = result.jobs.filter((job) => !previous.has(job.id));
+      if (fresh.length) {
+        showToast(`${fresh.length} new posting${fresh.length === 1 ? '' : 's'} found by auto-search.`, 'success');
+      }
+      if (ExtendedFeatures.autoSearchActive) {
+        txt.innerText = `Auto-Search: LIVE (${fresh.length} new)`;
+      }
+    } catch (error) {
+      showToast(`Auto-search failed: ${error.message}`, 'warning');
+    } finally {
+      ExtendedFeatures.autoSearchRunning = false;
+    }
+  }
 
-      ExtendedFeatures.autoSearchInterval = setInterval(() => {
-        showToast('📡 Scraped 1 new posting matching your profile: "ML Pipeline Architect"', 'info');
-      }, 45000);
-    } else {
-      btn.className = 'auto-search-indicator auto-search-off';
-      txt.innerText = 'Auto-Search Watchdog: OFF';
-      clearInterval(ExtendedFeatures.autoSearchInterval);
-      showToast('Auto-Search Watchdog paused.', 'info');
+  function start() {
+    ExtendedFeatures.autoSearchActive = true;
+    localStorage.setItem('ai_job_autosearch', 'on');
+    btn.className = 'auto-search-indicator auto-search-on';
+    txt.innerText = 'Auto-Search: LIVE';
+    clearInterval(ExtendedFeatures.autoSearchInterval);
+    ExtendedFeatures.autoSearchInterval = setInterval(runAutoSearch, 180000);
+    setTimeout(runAutoSearch, 1200);
+  }
+
+  function stop(notify) {
+    ExtendedFeatures.autoSearchActive = false;
+    localStorage.setItem('ai_job_autosearch', 'off');
+    btn.className = 'auto-search-indicator auto-search-off';
+    txt.innerText = 'Auto-Search: OFF';
+    clearInterval(ExtendedFeatures.autoSearchInterval);
+    ExtendedFeatures.autoSearchInterval = null;
+    if (notify) showToast('Auto-search paused.', 'info');
+  }
+
+  btn.addEventListener('click', () => {
+    if (ExtendedFeatures.autoSearchActive) stop(true);
+    else {
+      start();
+      showToast('Auto-search enabled. It runs a real live search every 3 minutes.', 'success');
     }
   });
+
+  if (localStorage.getItem('ai_job_autosearch') === 'on') start();
 }
 
 // ==========================================

@@ -9,8 +9,8 @@ const AppState = {
   theme: localStorage.getItem('ai_job_theme') || 'dark',
   currentTab: 'dashboard',
   candidate: JSON.parse(localStorage.getItem('ai_job_candidate')) || DEFAULT_CANDIDATE,
-  jobs: JSON.parse(localStorage.getItem('ai_job_jobs')) || SAMPLE_JOBS,
-  applications: JSON.parse(localStorage.getItem('ai_job_applications')) || SAMPLE_APPLICATIONS,
+  jobs: JSON.parse(localStorage.getItem('ai_job_jobs')) || [],
+  applications: JSON.parse(localStorage.getItem('ai_job_applications')) || [],
   salaryData: JSON.parse(localStorage.getItem('ai_job_salary')) || SALARY_BENCHMARKS,
   interviewData: JSON.parse(localStorage.getItem('ai_job_interview')) || INTERVIEW_PREP_DATA,
   upskillCatalog: JSON.parse(localStorage.getItem('ai_job_upskill')) || UPSKILL_CATALOG,
@@ -147,22 +147,23 @@ function initDashboard() {
   renderDashboardStats();
   renderDashboardCharts();
 
-  // Reset to default sample data button
+  // Clear locally stored jobs and applications. The candidate profile is kept.
   const resetBtn = document.getElementById('reset-demo-data-btn');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      if (confirm('Reset application data to initial sample dataset?')) {
-        localStorage.removeItem('ai_job_applications');
-        localStorage.removeItem('ai_job_jobs');
-        localStorage.removeItem('ai_job_candidate');
-        AppState.applications = [...SAMPLE_APPLICATIONS];
-        AppState.jobs = [...SAMPLE_JOBS];
-        AppState.candidate = { ...DEFAULT_CANDIDATE };
+      if (confirm('Clear all locally stored jobs, applications, and notes? This cannot be undone.')) {
+        ['ai_job_applications', 'ai_job_jobs', 'ai_job_feedback_v1', 'ai_job_salary'].forEach((key) => {
+          localStorage.removeItem(key);
+        });
+        AppState.applications = [];
+        AppState.jobs = [];
         renderDashboardStats();
         renderDashboardCharts();
         renderJobsList();
         renderTrackerBoard();
-        alert('Data successfully restored to default sample state.');
+        if (typeof populateRankerJobSelector === 'function') populateRankerJobSelector();
+        if (typeof populateTailorJobSelector === 'function') populateTailorJobSelector();
+        alert('Local job and application data cleared.');
       }
     });
   }
@@ -374,6 +375,16 @@ function initScraperTool() {
   const sectorFilter = document.getElementById('scraper-sector-filter');
   const workplaceFilter = document.getElementById('scraper-workplace-filter');
 
+  // Build the portal filter from the real source registry.
+  if (portalFilter && window.ScraperEngine && ScraperEngine.SOURCES) {
+    const current = portalFilter.value;
+    portalFilter.innerHTML = '<option value="all">All Sources (' + ScraperEngine.SOURCES.length + ')</option>' +
+      ScraperEngine.SOURCES.map((source) =>
+        `<option value="${escapeHtml(source.portalKey)}">${escapeHtml(source.label)}</option>`
+      ).join('');
+    portalFilter.value = current || 'all';
+  }
+
   const triggerFilter = () => renderJobsList();
 
   if (searchInput) searchInput.addEventListener('input', triggerFilter);
@@ -392,7 +403,7 @@ function initScraperTool() {
       const portal = document.getElementById('import-job-portal').value;
       const location = document.getElementById('import-job-location').value.trim() || 'Copenhagen';
       const sector = document.getElementById('import-job-sector').value.trim() || 'Tech & Engineering';
-      const url = document.getElementById('import-job-url').value.trim() || 'https://example.com/job';
+      const url = document.getElementById('import-job-url').value.trim();
       const description = document.getElementById('import-job-description').value.trim();
 
       if (!title || !company || !description) {
@@ -400,8 +411,13 @@ function initScraperTool() {
         return;
       }
 
-      // Compute simple automated match score based on candidate skills
-      const matchScore = calculateQuickMatch(description);
+      try {
+        const parsed = new URL(url);
+        if (!/^https?:$/.test(parsed.protocol)) throw new Error('bad protocol');
+      } catch (e) {
+        alert('Please enter the full http(s) URL of the original job posting.');
+        return;
+      }
 
       const newJob = {
         id: `job-custom-${Date.now()}`,
@@ -413,20 +429,26 @@ function initScraperTool() {
         sector: sector,
         roleType: 'Full-time',
         workplace: 'Hybrid',
-        deadline: new Date(Date.now() + 21 * 86400000).toISOString().split('T')[0],
+        deadline: '',
         postedDate: new Date().toISOString().split('T')[0],
         url: url,
-        salaryEstimate: 'Market standard',
-        matchScore: matchScore,
+        salaryEstimate: '',
+        matchScore: 0,
         tags: ['Custom', 'Imported'],
-        description: description
+        description: description,
+        language: 'English',
+        isManual: true
       };
+
+      newJob.matchScore = window.ScraperEngine
+        ? ScraperEngine.scoreJob(newJob, AppState.candidate, title, location)
+        : calculateQuickMatch(description);
 
       AppState.jobs.unshift(newJob);
       localStorage.setItem('ai_job_jobs', JSON.stringify(AppState.jobs));
       renderJobsList();
       importForm.reset();
-      alert(`Job "${title}" at ${company} was added to your search results! Match rating: ${matchScore}%.`);
+      showToast(`Added "${title}" at ${company}. Fit score: ${newJob.matchScore}%.`, 'success');
     });
   }
 }
@@ -453,22 +475,25 @@ function renderJobsList() {
   const workplaceVal = document.getElementById('scraper-workplace-filter')?.value || 'all';
 
   const filtered = AppState.jobs.filter(job => {
+    const tags = job.tags || [];
+    const title = (job.title || '').toLowerCase();
+    const company = (job.company || '').toLowerCase();
+    const description = (job.description || '').toLowerCase();
     const matchesSearch = !searchQuery ||
-      job.title.toLowerCase().includes(searchQuery) ||
-      job.company.toLowerCase().includes(searchQuery) ||
-      job.description.toLowerCase().includes(searchQuery) ||
-      job.tags.some(t => t.toLowerCase().includes(searchQuery));
+      title.includes(searchQuery) ||
+      company.includes(searchQuery) ||
+      description.includes(searchQuery) ||
+      tags.some(t => String(t).toLowerCase().includes(searchQuery));
 
-    const matchesPortal = portalVal === 'all' || 
-      job.portal.toLowerCase().includes(portalVal.toLowerCase()) || 
-      (job.portalKey && job.portalKey.toLowerCase().includes(portalVal.toLowerCase()));
+    const portalKey = String(job.portalKey || job.portal || '').toLowerCase();
+    const matchesPortal = portalVal === 'all' || portalKey.includes(portalVal.toLowerCase());
 
     const matchesLanguage = languageVal === 'all' || 
       (job.language && job.language.toLowerCase() === languageVal.toLowerCase()) ||
       (languageVal === 'English' && (!job.language || job.language === 'English'));
 
     const matchesSector = sectorVal === 'all' || job.sector === sectorVal;
-    const matchesWorkplace = workplaceVal === 'all' || job.workplace.toLowerCase().includes(workplaceVal);
+    const matchesWorkplace = workplaceVal === 'all' || String(job.workplace || '').toLowerCase().includes(workplaceVal);
 
     return matchesSearch && matchesPortal && matchesLanguage && matchesSector && matchesWorkplace;
   });
@@ -478,10 +503,10 @@ function renderJobsList() {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div class="empty-state-box">
+        <div class="empty-state-box">
         <div class="empty-icon">🔍</div>
         <h3>No matching jobs found</h3>
-        <p>Try broadening your search keywords or portal filters, or paste a new job description below.</p>
+        <p>Run a live search above, broaden your filters, or import a posting you found yourself.</p>
       </div>
     `;
     return;
@@ -490,28 +515,33 @@ function renderJobsList() {
   let html = '';
   filtered.forEach(job => {
     const matchClass = job.matchScore >= 90 ? 'match-high' : (job.matchScore >= 80 ? 'match-medium' : 'match-low');
-    const tagsHtml = job.tags.map(t => `<span class="badge tag-badge">${escapeHtml(t)}</span>`).join('');
+    const tags = job.tags || [];
+    const tagsHtml = tags.map(t => `<span class="badge tag-badge">${escapeHtml(t)}</span>`).join('');
+    const hasUrl = /^https?:\/\//i.test(job.url || '');
+    const posted = job.postedDate ? `<span>🕒 Posted: ${escapeHtml(job.postedDate)}</span>` : '';
+    const deadline = job.deadline ? `<span>📅 Deadline: ${escapeHtml(job.deadline)}</span>` : '';
 
     html += `
-      <div class="job-card" data-job-id="${job.id}">
+      <div class="job-card" data-job-id="${escapeHtml(job.id)}">
         <div class="job-card-header">
           <div class="job-title-group">
-            <div class="job-portal-badge"><span class="portal-indicator"></span>${escapeHtml(job.portal)}</div>
-            <h3 class="job-card-title">${escapeHtml(job.title)}</h3>
+            <div class="job-portal-badge"><span class="portal-indicator"></span>${escapeHtml(job.portal || 'Job board')}</div>
+            <h3 class="job-card-title">${escapeHtml(job.title || 'Untitled role')}</h3>
             <div class="job-company-location">
-              <strong>${escapeHtml(job.company)}</strong> &bull; <span>${escapeHtml(job.location)}</span> &bull; <em>${escapeHtml(job.workplace)}</em>
+              <strong>${escapeHtml(job.company || 'Unknown company')}</strong> &bull; <span>${escapeHtml(job.location || 'Location not stated')}</span> &bull; <em>${escapeHtml(job.workplace || 'Unspecified')}</em>
             </div>
           </div>
           <div class="match-score-badge ${matchClass}" title="Algorithmic Fit Score">
-            <span class="match-score-num">${job.matchScore}%</span>
+            <span class="match-score-num">${job.matchScore || 0}%</span>
             <span class="match-score-label">Fit Score</span>
           </div>
         </div>
 
         <div class="job-card-meta">
-          <span>📅 Deadline: ${job.deadline || 'Open'}</span>
-          <span>💼 ${escapeHtml(job.sector)}</span>
-          <span>💰 ${escapeHtml(job.salaryEstimate || 'Benchmark available')}</span>
+          ${posted}
+          ${deadline}
+          <span>💼 ${escapeHtml(job.sector || 'Uncategorised')}</span>
+          ${job.salaryEstimate ? `<span>💰 ${escapeHtml(job.salaryEstimate)}</span>` : ''}
         </div>
 
         <div class="job-tags-list">
@@ -519,17 +549,18 @@ function renderJobsList() {
         </div>
 
         <div class="job-card-footer">
-          <button class="btn btn-sm btn-secondary view-job-desc-btn" data-id="${job.id}">
+          <button class="btn btn-sm btn-secondary view-job-desc-btn" data-id="${escapeHtml(job.id)}">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            Full Description
+            Details
           </button>
-          <button class="btn btn-sm btn-primary evaluate-job-btn" data-id="${job.id}">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-            Evaluate Fit (/rank)
+          ${hasUrl ? `<a class="btn btn-sm btn-secondary" href="${escapeHtml(job.url)}" target="_blank" rel="noopener noreferrer">Open Posting</a>` : ''}
+          <button class="btn btn-sm btn-secondary save-job-btn" data-id="${escapeHtml(job.id)}">Save</button>
+          <button class="btn btn-sm btn-secondary dismiss-job-btn" data-id="${escapeHtml(job.id)}">Hide</button>
+          <button class="btn btn-sm btn-primary evaluate-job-btn" data-id="${escapeHtml(job.id)}">
+            Evaluate Fit
           </button>
-          <button class="btn btn-sm btn-coral tailor-job-btn" data-id="${job.id}">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            Tailor Application (/apply)
+          <button class="btn btn-sm btn-coral tailor-job-btn" data-id="${escapeHtml(job.id)}">
+            Tailor Application
           </button>
         </div>
       </div>
@@ -570,6 +601,30 @@ function renderJobsList() {
       }
     });
   });
+
+  container.querySelectorAll('.save-job-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const job = AppState.jobs.find(j => j.id === btn.getAttribute('data-id'));
+      if (!job) return;
+      if (window.ScraperEngine) ScraperEngine.Feedback.record(job, 'save');
+      btn.innerText = 'Saved';
+      btn.disabled = true;
+      showToast(`Saved "${job.title}". Similar roles will rank higher.`, 'success');
+    });
+  });
+
+  container.querySelectorAll('.dismiss-job-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const job = AppState.jobs.find(j => j.id === id);
+      if (!job) return;
+      if (window.ScraperEngine) ScraperEngine.Feedback.record(job, 'dismiss');
+      AppState.jobs = AppState.jobs.filter(j => j.id !== id);
+      localStorage.setItem('ai_job_jobs', JSON.stringify(AppState.jobs));
+      renderJobsList();
+      showToast('Hidden. Similar roles will rank lower.', 'info');
+    });
+  });
 }
 
 function showJobModal(job) {
@@ -581,7 +636,48 @@ function showJobModal(job) {
   document.getElementById('modal-job-body').innerText = job.description;
 
   const linkEl = document.getElementById('modal-job-link');
-  if (linkEl) linkEl.href = job.url;
+  if (linkEl) {
+    if (/^https?:\/\//i.test(job.url || '')) {
+      linkEl.href = job.url;
+      linkEl.style.display = '';
+    } else {
+      linkEl.removeAttribute('href');
+      linkEl.style.display = 'none';
+    }
+  }
+
+  const aiOutput = document.getElementById('modal-ai-output');
+  if (aiOutput) {
+    aiOutput.hidden = true;
+    aiOutput.textContent = '';
+  }
+
+  const aiBtn = document.getElementById('modal-ai-btn');
+  if (aiBtn) {
+    aiBtn.onclick = async () => {
+      if (!window.LocalAI) {
+        showToast('Local AI module is not loaded.', 'warning');
+        return;
+      }
+      aiBtn.disabled = true;
+      const label = aiBtn.innerText;
+      aiBtn.innerText = 'Reviewing...';
+      if (aiOutput) {
+        aiOutput.hidden = false;
+        aiOutput.textContent = 'Asking the local model. First run may take up to a minute...';
+      }
+      try {
+        const result = await LocalAI.evaluateJob(job, AppState.candidate);
+        if (aiOutput) aiOutput.textContent = result.text;
+        if (window.ScraperEngine) ScraperEngine.Feedback.record(job, 'evaluate');
+      } catch (error) {
+        if (aiOutput) aiOutput.textContent = `Local AI unavailable: ${error.message}\n\nStart Ollama or the local bridge, then try again. The deterministic Evaluate Fit view still works without AI.`;
+      } finally {
+        aiBtn.disabled = false;
+        aiBtn.innerText = label;
+      }
+    };
+  }
 
   const evalBtn = document.getElementById('modal-eval-btn');
   if (evalBtn) {
@@ -930,6 +1026,50 @@ function initTailorStudio() {
     genBtn.addEventListener('click', () => {
       generateTailoredMaterials();
       showToast('Document materials refreshed.', 'info');
+    });
+
+    let aiLetterBtn = document.getElementById('ai-cover-letter-btn');
+    if (!aiLetterBtn) {
+      aiLetterBtn = document.createElement('button');
+      aiLetterBtn.id = 'ai-cover-letter-btn';
+      aiLetterBtn.className = 'btn btn-primary';
+      aiLetterBtn.style.cssText = 'width: 100%; margin-top: 8px;';
+      aiLetterBtn.innerText = 'Write Cover Letter with Local AI';
+      genBtn.parentNode.insertBefore(aiLetterBtn, genBtn.nextSibling);
+    }
+
+    aiLetterBtn.addEventListener('click', async () => {
+      const job = AppState.selectedJobForTailoring || AppState.jobs[0];
+      if (!job) {
+        showToast('Select a job first.', 'warning');
+        return;
+      }
+      if (!window.LocalAI) {
+        showToast('Local AI module is not loaded.', 'warning');
+        return;
+      }
+      const container = document.getElementById('tailored-letter-view');
+      const label = aiLetterBtn.innerText;
+      aiLetterBtn.disabled = true;
+      aiLetterBtn.innerText = 'Writing...';
+      if (container) container.innerHTML = '<p class="ai-thinking">Writing a grounded cover letter on this machine...</p>';
+      try {
+        const result = await LocalAI.coverLetter(job, AppState.candidate);
+        if (container) {
+          const paragraphs = String(result.text || '')
+            .split(/\n{2,}/)
+            .map((block) => `<p>${escapeHtml(block).replace(/\n/g, '<br>')}</p>`)
+            .join('');
+          container.innerHTML = `<div class="ai-letter-output">${paragraphs}</div>`;
+        }
+        showToast('Cover letter generated locally. Review it before sending.', 'success');
+      } catch (error) {
+        showToast(`Local AI unavailable: ${error.message}`, 'warning');
+        generateTailoredMaterials();
+      } finally {
+        aiLetterBtn.disabled = false;
+        aiLetterBtn.innerText = label;
+      }
     });
   }
 
