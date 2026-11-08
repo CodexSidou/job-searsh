@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Job Search | Local Agentic Career Workspace</title>
+  <meta name="description" content="An interactive web suite for the open-source AI Job Search framework: scrape portals, evaluate fit, tailor CVs & cover letters, benchmark salaries, and track pipeline results.">
+  <link rel="icon" href="assets/mascot/pip_flight_loop.gif" type="image/gif">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/features.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       SITE HEADER & NAVIGATION
+       ========================================================================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#dashboard" class="brand-wrapper">
+        <div class="brand-avatar">
+          <img src="assets/mascot/pip_flight_loop.gif" alt="Pip Courier Bird Mascot">
+        </div>
+        <div class="brand-name">
+          AI Job Search
+          <span class="brand-tag">Agentic Suite</span>
+        </div>
+      </a>
+
+      <button class="mobile-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
+      <nav class="main-nav" id="main-nav">
+        <a href="#dashboard" class="nav-link active" data-tab="dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </a>
+        <a href="#scraper" class="nav-link" data-tab="scraper">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Scraper
+        </a>
+        <a href="#ranker" class="nav-link" data-tab="ranker">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Fit Ranker
+        </a>
+        <a href="#tailor" class="nav-link" data-tab="tailor">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          Tailor Studio
+        </a>
+        <a href="#salary" class="nav-link" data-tab="salary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          Salary Lookup
+        </a>
+        <a href="#tracker" class="nav-link" data-tab="tracker">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          Tracker
+        </a>
+        <a href="#interview" class="nav-link" data-tab="interview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Interview Prep
+        </a>
+        <a href="#upskill" class="nav-link" data-tab="upskill">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+          Upskill
+        </a>
+        <a href="#profile" class="nav-link" data-tab="profile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Profile
+        </a>
+        <a href="#cli" class="nav-link" data-tab="cli">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+          CLI Docs
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="theme-btn" id="theme-toggle-btn" aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <span>Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       HERO BANNER
+       ========================================================================= -->
+  <section class="hero-section">
+    <div class="container hero-layout">
+      <div class="hero-content">
+        <div class="hero-pill-badge">
+          <span class="dot"></span>
+          <span>100% Local & Private &bull; Runs on your machine</span>
+        </div>
+        <h1 class="hero-title">
+          The AI Career Framework <br>
+          <span class="highlight">That Actually Gets You Hired.</span>
+        </h1>
+        <p class="hero-description">
+          An end-to-end interactive workspace powered by the AI Job Search toolchain. Scrape Nordic & global job portals, evaluate fit with deterministic prompt guards, tailor precision LaTeX documents, benchmark salaries, and track your pipeline.
+        </p>
+
+        <div class="hero-actions-row">
+          <button class="btn btn-primary" onclick="switchTab('scraper')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Explore Scraped Jobs
+          </button>
+          <button class="btn btn-secondary" onclick="switchTab('salary')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Salary Lookup Tool
+          </button>
+          <button class="btn btn-coral" onclick="switchTab('tailor')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Tailor CV & Letter
+          </button>
+        </div>
+
+        <div class="hero-metrics-grid">
+          <div class="metric-item">
+            <span class="metric-number">69</span>
+            <span class="metric-label">Applications</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-number">20</span>
+            <span class="metric-label">Interviews</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-number">1</span>
+            <span class="metric-label">Signed Contract</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-number">6</span>
+            <span class="metric-label">Portals Supported</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-media-card">
+        <img src="assets/readme/route.svg" alt="Workflow steps: /setup, /scrape, /rank, /apply, /interview, /outcome">
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================= -->
+  <main class="container">
+
+    <!-- =====================================================================
+         TAB 1: DASHBOARD & ANALYTICS OVERVIEW (/html-report)
+         ===================================================================== -->
+    <section id="tab-dashboard" class="tab-section active-tab">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Application Funnel & Analytics
+          </h2>
+          <p class="section-subtitle">Real-time statistics synchronized from your offline job tracker.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-secondary" id="reset-demo-data-btn">Reset Sample Data</button>
+          <button class="btn btn-sm btn-primary" onclick="switchTab('tracker')">Open Kanban Board</button>
+        </div>
+      </div>
+
+      <!-- Weekly Application Goal Tracker -->
+      <div id="weekly-goal-container"></div>
+
+      <!-- Gamification Badges & Daily Streak Banner -->
+      <div id="gamification-badges-container" style="margin-bottom: 24px;"></div>
+
+      <!-- Stat Cards -->
+      <div class="stat-cards-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-sent">📨</div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-sent-count">0</span>
+            <span class="stat-title">Applications Sent</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-active">⏳</div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-active-count">0</span>
+            <span class="stat-title">Active Screening</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-interview">🎯</div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-interview-count">0</span>
+            <span class="stat-title">Interview Stage</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-offer">💼</div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-offer-count">0</span>
+            <span class="stat-title">Offers Received</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-rate">📈</div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-interview-rate">0%</span>
+            <span class="stat-title">Interview Rate</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-hired">🎉</div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-hired-count">0</span>
+            <span class="stat-title">Hired</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Charts Grid -->
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <div class="chart-card-title">
+            <span>Status Breakdown</span>
+            <span class="badge">Doughnut Chart</span>
+          </div>
+          <div id="status-doughnut-container"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-title">
+            <span>Applications by Sector</span>
+            <span class="badge">Distribution</span>
+          </div>
+          <div id="sector-chart-container"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-title">
+            <span>Pipeline Progression</span>
+            <span class="badge">Conversion</span>
+          </div>
+          <div id="funnel-progress-container"></div>
+        </div>
+      </div>
+
+      <!-- Activity Heatmap Calendar (GitHub Style) -->
+      <div id="heatmap-calendar-container" style="margin-bottom: 24px;"></div>
+
+      <!-- Advanced Visualizations: Radar Comparison & Journey Timeline -->
+      <div class="analytics-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+        <div id="radar-comparison-container"></div>
+        <div id="application-timeline-container"></div>
+      </div>
+
+      <!-- Pomodoro Focus Timer Widget -->
+      <div id="pomodoro-widget-container" style="margin-bottom: 24px;"></div>
+
+      <!-- Quick Action Cards Grid -->
+      <div class="stat-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+        <div class="card" style="cursor: pointer;" onclick="switchTab('scraper')">
+          <div style="font-size: 1.5rem; margin-bottom: 8px;">🔍</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Portal Scraper</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Search across 6 major job portals: Jobindex, Jobnet, FreeHire, LinkedIn, Akademikernes Jobbank, and Jobdanmark.</p>
+        </div>
+        <div class="card" style="cursor: pointer;" onclick="switchTab('ranker')">
+          <div style="font-size: 1.5rem; margin-bottom: 8px;">🛡️</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Posting Guard & Ranker</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Deterministic security scanner that verifies prompt safety and scores postings across 5 evaluation dimensions.</p>
+        </div>
+        <div class="card" style="cursor: pointer;" onclick="switchTab('salary')">
+          <div style="font-size: 1.5rem; margin-bottom: 8px;">📊</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Salary Benchmark Lookup</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Web port of <code>salary_lookup.py</code> with Nordic character normalization, company index dials, and currency converters.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 2: JOB SCRAPER & PORTAL SEARCH (/scrape)
+         ===================================================================== -->
+    <section id="tab-scraper" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Job Portal Scraper & Aggregator
+          </h2>
+          <p class="section-subtitle">Orchestrates searches across Jobindex, LinkedIn, Jobnet, FreeHire, and Jobbank.</p>
+        </div>
+        <div class="section-actions">
+          <div id="auto-search-toggle-container"></div>
+          <span class="badge" id="scraped-count-badge">0 postings</span>
+        </div>
+      </div>
+
+      <!-- Multi-Source Global Search Hub -->
+      <div id="multi-source-search-hub"></div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="search-input-wrap">
+          <svg class="search-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="scraper-search-input" placeholder="Search title, company, skills (e.g. AI, Python, Novo)...">
+        </div>
+
+        <select class="filter-select" id="scraper-portal-filter">
+          <option value="all">All Portals & Sources (11)</option>
+          <option value="linkedin">LinkedIn Jobs (Worldwide)</option>
+          <option value="jobindex">Jobindex.dk</option>
+          <option value="freehire">FreeHire.me (50 ATS)</option>
+          <option value="indeed">Indeed</option>
+          <option value="glassdoor">Glassdoor</option>
+          <option value="wellfound">Wellfound (AngelList Tech)</option>
+          <option value="jobnet">Jobnet (STAR Gov)</option>
+          <option value="jobbank">Akademikernes Jobbank</option>
+          <option value="jobdanmark">Jobdanmark</option>
+        </select>
+
+        <select class="filter-select" id="scraper-language-filter">
+          <option value="all">All Languages</option>
+          <option value="English">English</option>
+          <option value="Danish">Danish (Dansk)</option>
+          <option value="French">French (Français)</option>
+          <option value="German">German (Deutsch)</option>
+        </select>
+
+        <select class="filter-select" id="scraper-sector-filter">
+          <option value="all">All Sectors</option>
+          <option value="Pharma / BioTech">Pharma / BioTech</option>
+          <option value="Green Tech & Energy">Green Tech & Energy</option>
+          <option value="FinTech / Enterprise">FinTech / Enterprise</option>
+          <option value="Logistics & Supply Chain">Logistics</option>
+          <option value="Medical Devices">Medical Devices</option>
+          <option value="IT Consulting">IT Consulting</option>
+        </select>
+
+        <select class="filter-select" id="scraper-workplace-filter">
+          <option value="all">All Workplaces</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="remote">Remote</option>
+          <option value="on-site">On-site</option>
+        </select>
+      </div>
+
+      <!-- Scraped Jobs Grid -->
+      <div class="jobs-grid" id="scraped-jobs-container"></div>
+
+      <!-- Custom Job Importer Box -->
+      <div class="card" style="margin-top: 30px;">
+        <h3 style="font-size: 1.15rem; margin-bottom: 8px;">📥 Import or Paste Any Job Posting</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">
+          Encountered a job outside these portals? Paste its text directly below to evaluate fit and tailor your CV.
+        </p>
+
+        <form id="manual-job-import-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Job Title</label>
+              <input type="text" class="form-input" id="import-job-title" placeholder="e.g. Senior Machine Learning Engineer" required>
+            </div>
+            <div class="form-group">
+              <label>Company Name</label>
+              <input type="text" class="form-input" id="import-job-company" placeholder="e.g. Novo Nordisk A/S" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Portal / Source</label>
+              <select class="form-select" id="import-job-portal">
+                <option value="Direct Company Site">Direct Company Site</option>
+                <option value="Jobindex">Jobindex</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Referral">Referral / Network</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" class="form-input" id="import-job-location" placeholder="e.g. Copenhagen, Denmark">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Job Posting URL (Optional)</label>
+            <input type="url" class="form-input" id="import-job-url" placeholder="https://...">
+          </div>
+
+          <div class="form-group">
+            <label>Full Job Description / Requirements</label>
+            <textarea class="form-textarea" id="import-job-description" rows="5" placeholder="Paste full job description text here..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Import & Score Job
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 3: FIT EVALUATION & POSTING GUARD (/rank)
+         ===================================================================== -->
+    <section id="tab-ranker" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Posting Guard & Fit Ranker
+          </h2>
+          <p class="section-subtitle">Evaluates candidates across the 5 canonical dimensions with deterministic security gatekeeping.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-coral" id="proceed-to-tailor-btn">
+            Proceed to Tailoring (/apply) &rarr;
+          </button>
+        </div>
+      </div>
+
+      <div class="evaluator-layout">
+        <!-- Left Panel: Job Input & Posting Guard -->
+        <div class="eval-panel">
+          <div class="card">
+            <div class="form-group">
+              <label>Select Posting to Evaluate:</label>
+              <select class="form-select" id="ranker-job-selector"></select>
+            </div>
+
+            <div class="form-group">
+              <label>Or Paste Raw Posting Text:</label>
+              <textarea class="form-textarea" id="ranker-job-text" rows="8" placeholder="Paste job requirements here..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-sm btn-primary" id="run-custom-rank-btn">Evaluate Text</button>
+              <button class="btn btn-sm btn-secondary" id="run-guard-check-btn">Run Guard Check</button>
+            </div>
+          </div>
+
+          <!-- Deterministic Posting Guard Box -->
+          <div class="card">
+            <h4 style="font-size: 0.95rem; margin-bottom: 8px;">🛡️ Deterministic Security Gatekeeper</h4>
+            <div id="posting-guard-verdict" class="guard-badge guard-pass">
+              🛡️ Posting Guard: VERIFIED SAFE
+            </div>
+            <div id="posting-guard-details">
+              <p class="guard-clean-msg">Passed zero-width character inspection, injection keyword heuristics, and hidden link filters.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: 5-Dimension Evaluation Results -->
+        <div class="eval-panel">
+          <div class="card">
+            <h3 id="ranker-active-title" style="font-size: 1.25rem; margin-bottom: 4px;">Senior AI Engineer at Novo Nordisk</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Weighted evaluation framework against candidate profile.</p>
+
+            <div class="score-display-card">
+              <div class="huge-score" id="ranker-overall-score">94%</div>
+              <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-top: 4px;">Algorithmic Fit Score</div>
+            </div>
+
+            <div id="ranker-verdict-banner" class="verdict-banner verdict-strong">
+              <strong>🎯 Strong Fit:</strong> Recommended to draft customized application materials.
+            </div>
+
+            <!-- 5 Dimension Sliders -->
+            <div class="dimension-item">
+              <div class="dimension-header">
+                <span>1. Technical Competence (Weight 40%)</span>
+                <span id="slider-tech-val">94%</span>
+              </div>
+              <input type="range" class="dimension-slider" id="slider-tech" min="0" max="100" value="94">
+              <span class="dimension-desc">Core skills, Python, ML frameworks, distributed architecture.</span>
+            </div>
+
+            <div class="dimension-item">
+              <div class="dimension-header">
+                <span>2. Experience Level & Scope (Weight 20%)</span>
+                <span id="slider-exp-val">90%</span>
+              </div>
+              <input type="range" class="dimension-slider" id="slider-exp" min="0" max="100" value="90">
+              <span class="dimension-desc">Seniority match, project ownership, numerical problem solving.</span>
+            </div>
+
+            <div class="dimension-item">
+              <div class="dimension-header">
+                <span>3. Behavioral & Culture Alignment (Weight 15%)</span>
+                <span id="slider-behavior-val">92%</span>
+              </div>
+              <input type="range" class="dimension-slider" id="slider-behavior" min="0" max="100" value="92">
+              <span class="dimension-desc">Cross-functional curiosity, autonomous execution, teamwork.</span>
+            </div>
+
+            <div class="dimension-item">
+              <div class="dimension-header">
+                <span>4. Career Trajectory & Motivation (Weight 15%)</span>
+                <span id="slider-trajectory-val">95%</span>
+              </div>
+              <input type="range" class="dimension-slider" id="slider-trajectory" min="0" max="100" value="95">
+              <span class="dimension-desc">Alignment with long-term engineering and scientific goals.</span>
+            </div>
+
+            <div class="dimension-item">
+              <div class="dimension-header">
+                <span>5. Practical Constraints & Language Gate (Weight 10%)</span>
+                <span id="slider-practical-val">95%</span>
+              </div>
+              <input type="range" class="dimension-slider" id="slider-practical" min="0" max="100" value="95">
+              <span class="dimension-desc">Commute feasibility, language requirements, hybrid policy.</span>
+            </div>
+
+            <div id="ranker-breakdown-details" style="margin-top: 18px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 4: CV & COVER LETTER TAILORING STUDIO (/apply)
+         ===================================================================== -->
+    <section id="tab-tailor" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            CV & Cover Letter Tailoring Studio
+          </h2>
+          <p class="section-subtitle">Produces ATS-parseable ModernCV LaTeX, styled documents, and tailored cover letters.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-secondary" id="copy-materials-btn">Copy Text</button>
+          <button class="btn btn-sm btn-secondary" id="print-materials-btn">Print / PDF</button>
+          <button class="btn btn-sm btn-primary" id="save-to-tracker-btn">Save to Tracker</button>
+        </div>
+      </div>
+
+      <div class="studio-layout">
+        <!-- Sidebar Controls -->
+        <aside class="studio-sidebar">
+          <div class="card">
+            <div class="form-group">
+              <label>Target Job:</label>
+              <select class="form-select" id="tailor-job-selector"></select>
+            </div>
+
+            <div class="form-group">
+              <label>CV LaTeX Template:</label>
+              <select class="form-select" id="tailor-template-select">
+                <option value="banking">moderncv (Banking style)</option>
+                <option value="classic">moderncv (Classic style)</option>
+                <option value="casual">moderncv (Casual style)</option>
+                <option value="cover_cls">cover.cls (Custom XeLaTeX)</option>
+              </select>
+            </div>
+
+            <!-- Pro AI Auto-Tuner & Custom Controls -->
+            <div class="form-group" style="border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+              <label>Cover Letter Tone & Framing:</label>
+              <select class="form-select" id="tailor-tone-select">
+                <option value="technical">Technical & Quantitative (Dense metrics)</option>
+                <option value="assertive">High Agency & Leadership (Commercial impact)</option>
+                <option value="mission">Mission & Culture Aligned (Scientific ethos)</option>
+                <option value="concise">Concise & Direct (High signal)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Special Focus for this Application:</label>
+              <select class="form-select" id="tailor-focus-select">
+                <option value="agents">LLM Multi-Agents & RAG Systems</option>
+                <option value="pipelines">Scalable Data Pipelines & FastAPI</option>
+                <option value="numerical">Numerical Inversion & Mathematical Modeling</option>
+                <option value="general">Balanced Full Stack AI</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Custom Application Note / Hook (Optional):</label>
+              <input type="text" class="form-input" id="tailor-custom-hook" placeholder="e.g. Cite my open-source benchmark or 8+ years in Copenhagen">
+            </div>
+
+            <button class="btn btn-coral" style="width: 100%; margin-bottom: 8px;" id="ai-auto-optimize-btn">
+              ✨ AI Auto-Optimize Documents
+            </button>
+            <button class="btn btn-secondary" style="width: 100%;" id="generate-materials-btn">
+              ⚡ Refresh Documents
+            </button>
+          </div>
+
+          <div class="card">
+            <h4 style="font-size: 0.92rem; margin-bottom: 8px;">ATS & Verification Checks</h4>
+            <ul style="font-size: 0.82rem; color: var(--text-muted); padding-left: 18px; line-height: 1.6;">
+              <li>✓ Single page limit verified</li>
+              <li>✓ Plain text parseable without ligatures</li>
+              <li>✓ Zero unverified career claims</li>
+              <li>✓ Forward-looking 3-paragraph letter structure</li>
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Document Previews -->
+        <div class="studio-preview-pane">
+          <div class="doc-tabs-bar">
+            <!-- CV vs Cover Letter -->
+            <div class="doc-tab-group">
+              <button class="doc-tab-btn active" data-doctype="cv">Tailored CV</button>
+              <button class="doc-tab-btn" data-doctype="letter">Cover Letter</button>
+            </div>
+
+            <!-- Visual vs LaTeX vs Markdown -->
+            <div class="doc-tab-group">
+              <button class="format-tab-btn active" data-format="visual">Visual Layout</button>
+              <button class="format-tab-btn" data-format="latex">LaTeX (.tex)</button>
+              <button class="format-tab-btn" data-format="markdown">Markdown</button>
+            </div>
+          </div>
+
+          <div id="tailor-target-headline" style="font-size: 0.95rem; color: var(--text-dim); margin-bottom: 10px;"></div>
+
+          <!-- Format 1: Visual HTML Document Simulation -->
+          <div id="format-visual-container">
+            <div id="pane-cv" class="doc-preview-pane active-pane">
+              <div id="tailored-cv-view"></div>
+            </div>
+            <div id="pane-letter" class="doc-preview-pane">
+              <div id="tailored-letter-view"></div>
+            </div>
+          </div>
+
+          <!-- Format 2: LaTeX Source Code -->
+          <div id="format-latex-container" style="display: none;">
+            <textarea class="code-editor-area" id="tailored-latex-code" readonly></textarea>
+          </div>
+
+          <!-- Format 3: Markdown Source Code -->
+          <div id="format-markdown-container" style="display: none;">
+            <textarea class="code-editor-area" id="tailored-markdown-code" readonly></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATS Resume Health & Verification Inspector (verify_pdf.py & verify_layout.py) -->
+      <div id="ats-health-inspector-container"></div>
+
+      <!-- Application Form Essay & Free-Text Fields Generator (08-application-forms.md) -->
+      <div id="application-forms-container" style="margin-top: 24px;"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 5: SALARY BENCHMARK LOOKUP TOOL (salary_lookup.py)
+         ===================================================================== -->
+    <section id="tab-salary" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Salary Benchmark Lookup Tool
+          </h2>
+          <p class="section-subtitle">Web version of <code>salary_lookup.py</code> with fuzzy company normalization and index benchmarking.</p>
+        </div>
+        <div class="section-actions">
+          <span class="badge" id="salary-count-label">0 companies</span>
+        </div>
+      </div>
+
+      <!-- Quick Search Suggestions -->
+      <div class="quick-companies-bar">
+        <span style="color: var(--text-dim); font-weight: 600;">Popular Benchmarks:</span>
+        <button class="quick-company-pill">Novo Nordisk</button>
+        <button class="quick-company-pill">Ørsted</button>
+        <button class="quick-company-pill">SimCorp</button>
+        <button class="quick-company-pill">Maersk</button>
+        <button class="quick-company-pill">LEGO</button>
+        <button class="quick-company-pill">Netcompany</button>
+        <button class="quick-company-pill">Ambu</button>
+        <button class="quick-company-pill">Vestas</button>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-bar">
+        <div class="search-input-wrap">
+          <svg class="search-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="salary-search-input" placeholder="Type company name (e.g. Novo, Orsted, Maersk)...">
+        </div>
+
+        <select class="filter-select" id="salary-city-filter">
+          <option value="all">All Locations</option>
+          <option value="Copenhagen">Copenhagen & Suburbs</option>
+          <option value="Bagsværd">Bagsværd</option>
+          <option value="Gentofte">Gentofte</option>
+          <option value="Aarhus">Aarhus</option>
+          <option value="Billund">Billund</option>
+        </select>
+
+        <select class="filter-select" id="salary-category-filter">
+          <option value="data_ai">Data Science & AI</option>
+          <option value="engineering">Engineering & Software</option>
+          <option value="all_employees">All Employees</option>
+          <option value="management">Leadership / Management</option>
+        </select>
+
+        <select class="filter-select" id="salary-currency-selector">
+          <option value="DKK">Currency: DKK (kr)</option>
+          <option value="EUR">Currency: EUR (€)</option>
+          <option value="USD">Currency: USD ($)</option>
+        </select>
+      </div>
+
+      <!-- Results Grid -->
+      <div class="salary-results-grid" id="salary-results-container"></div>
+
+      <!-- Salary Negotiation Simulator -->
+      <div id="salary-negotiator-container" style="margin-top: 30px;"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 6: PIPELINE TRACKER & KANBAN BOARD
+         ===================================================================== -->
+    <section id="tab-tracker" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Job Application Pipeline Tracker
+          </h2>
+          <p class="section-subtitle">Manage applications with full compatibility to <code>job_search_tracker.csv</code>.</p>
+        </div>
+        <div class="section-actions">
+          <div class="doc-tab-group" style="margin-right: 10px;">
+            <button class="doc-tab-btn active" id="view-kanban-btn">Kanban</button>
+            <button class="doc-tab-btn" id="view-table-btn">Table</button>
+          </div>
+          <button class="btn btn-sm btn-primary" id="add-application-modal-btn">+ Add Application</button>
+          <button class="btn btn-sm btn-secondary" id="export-tracker-csv-btn">Export CSV</button>
+          <button class="btn btn-sm btn-secondary" id="export-tracker-json-btn">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- CSV Drag & Drop Importer Dropzone -->
+      <div id="tracker-csv-dropzone-container"></div>
+
+      <!-- Kanban View -->
+      <div class="kanban-board-grid" id="tracker-kanban-view">
+        <div class="kanban-column" data-status="drafted">
+          <div class="kanban-col-header">
+            <span>📝 Drafted</span>
+            <span class="col-count-badge">0</span>
+          </div>
+          <div class="kanban-card-list" id="col-drafted-items"></div>
+        </div>
+
+        <div class="kanban-column" data-status="applied">
+          <div class="kanban-col-header">
+            <span>🚀 Active (Applied)</span>
+            <span class="col-count-badge">0</span>
+          </div>
+          <div class="kanban-card-list" id="col-applied-items"></div>
+        </div>
+
+        <div class="kanban-column" data-status="interview">
+          <div class="kanban-col-header">
+            <span>🎯 Interview Stage</span>
+            <span class="col-count-badge">0</span>
+          </div>
+          <div class="kanban-card-list" id="col-interview-items"></div>
+        </div>
+
+        <div class="kanban-column" data-status="offer">
+          <div class="kanban-col-header">
+            <span>💼 Offer Received</span>
+            <span class="col-count-badge">0</span>
+          </div>
+          <div class="kanban-card-list" id="col-offer-items"></div>
+        </div>
+
+        <div class="kanban-column" data-status="hired">
+          <div class="kanban-col-header">
+            <span>🎉 Hired!</span>
+            <span class="col-count-badge">0</span>
+          </div>
+          <div class="kanban-card-list" id="col-hired-items"></div>
+        </div>
+
+        <div class="kanban-column" data-status="closed">
+          <div class="kanban-col-header">
+            <span>📁 Closed / Rejected</span>
+            <span class="col-count-badge">0</span>
+          </div>
+          <div class="kanban-card-list" id="col-closed-items"></div>
+        </div>
+      </div>
+
+      <!-- Table View (Hidden by default) -->
+      <div id="tracker-table-view" style="display: none;">
+        <div class="table-responsive-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Sector</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th>Fit</th>
+                <th>Contact</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="tracker-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Gmail Sync Signal Detector (/gmail-sync) -->
+      <div id="gmail-sync-container"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 7: INTERVIEW COACH & STAR PREP (/interview)
+         ===================================================================== -->
+    <section id="tab-interview" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Interview Preparation & STAR Coach
+          </h2>
+          <p class="section-subtitle">Stage-specific prep packs and honest bridge answers following the 07-interview-prep protocol.</p>
+        </div>
+      </div>
+
+      <!-- Stage Selector Tabs -->
+      <div class="doc-tab-group" style="margin-bottom: 20px;">
+        <button class="doc-tab-btn interview-stage-tab active" data-stage="recruiter">Recruiter Screen</button>
+        <button class="doc-tab-btn interview-stage-tab" data-stage="technical">Technical Deep-Dive</button>
+        <button class="doc-tab-btn interview-stage-tab" data-stage="hiring_manager">Hiring Manager</button>
+        <button class="doc-tab-btn interview-stage-tab" data-stage="cultural">Executive & Culture Fit</button>
+      </div>
+
+      <div id="interview-stage-info">
+        <div class="stage-info-banner" style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-md); border-left: 4px solid var(--primary); margin-bottom: 24px;">
+          <h4>🎯 Focus for Recruiter Screen (30 mins):</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">High-level background, motivation, salary alignment, culture fit, practical constraints.</p>
+        </div>
+      </div>
+
+      <!-- STAR Flashcards Grid -->
+      <div class="star-cards-grid" id="interview-flashcards-container"></div>
+
+      <!-- Honest Bridge The Gap Tool -->
+      <div class="bridge-box-wrapper">
+        <h3 style="font-size: 1.15rem; margin-bottom: 8px;">🌉 Honest "Bridge The Gap" Answer Generator</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
+          Never invent experience. Enter any skill gap or tough question, and this tool generates an authentic bridge answer pivoting to your strengths.
+        </p>
+
+        <div style="display: flex; gap: 10px;">
+          <input type="text" class="form-input" id="bridge-gap-input" placeholder="e.g. Commercial Kafka streaming experience or Kubernetes clusters...">
+          <button class="btn btn-coral" id="generate-bridge-answer-btn">Generate Bridge</button>
+        </div>
+
+        <div id="bridge-answer-output"></div>
+      </div>
+
+      <!-- Company Intelligence & Web Research Dossier (09-web-research.md) -->
+      <div id="company-dossier-container" style="margin-top: 24px;"></div>
+
+      <!-- Interactive STAR Mock Interview Quiz Mode -->
+      <div id="star-quiz-mode-container"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 8: UPSKILL & LEARNING ROADMAP (/upskill)
+         ===================================================================== -->
+    <section id="tab-upskill" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg>
+            Upskill & Learning Roadmap
+          </h2>
+          <p class="section-subtitle">Synthesizes competency gaps across scraped jobs into actionable learning sprints.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-primary" id="add-upskill-btn">+ Add Skill Goal</button>
+        </div>
+      </div>
+
+      <div class="upskill-grid" id="upskill-cards-container"></div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 9: CANDIDATE PROFILE MANAGER (/setup)
+         ===================================================================== -->
+    <section id="tab-profile" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Candidate Profile Settings
+          </h2>
+          <p class="section-subtitle">Matches the specifications defined in <code>CLAUDE.md</code> and <code>01-candidate-profile.md</code>.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-sm btn-secondary" id="export-claudemd-btn">Export CLAUDE.md</button>
+        </div>
+      </div>
+
+      <div class="card" style="max-width: 820px; margin: 0 auto;">
+        <form id="profile-edit-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" class="form-input" id="prof-name" required>
+            </div>
+            <div class="form-group">
+              <label>Target Headline / Professional Title</label>
+              <input type="text" class="form-input" id="prof-title" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Location & Commute Constraints</label>
+              <input type="text" class="form-input" id="prof-location" required>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" class="form-input" id="prof-email" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-input" id="prof-phone">
+            </div>
+            <div class="form-group">
+              <label>Employment Status</label>
+              <select class="form-select" id="prof-status">
+                <option value="Actively Looking">Actively Looking</option>
+                <option value="Open to Offers">Open to Offers</option>
+                <option value="Employed & Exploring">Employed & Exploring</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>LinkedIn Profile URL</label>
+              <input type="text" class="form-input" id="prof-linkedin" placeholder="linkedin.com/in/your-name">
+            </div>
+            <div class="form-group">
+              <label>GitHub or Portfolio URL</label>
+              <input type="text" class="form-input" id="prof-github" placeholder="github.com/your-username">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Primary Technical Skills (Comma-separated)</label>
+            <input type="text" class="form-input" id="prof-skills" required>
+          </div>
+
+          <div class="form-group">
+            <label>Secondary Tools & Cloud Infrastructure (Comma-separated)</label>
+            <input type="text" class="form-input" id="prof-secondary-skills" placeholder="e.g. AWS, Docker, Kubernetes, Linux, Git">
+          </div>
+
+          <div class="form-group">
+            <label>Professional Summary & Scientific Background</label>
+            <textarea class="form-textarea" id="prof-summary" rows="4" required></textarea>
+          </div>
+
+          <!-- Languages Manager -->
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h4 style="font-size: 1rem; font-weight: 700;">🗣️ Languages & Fluency Levels</h4>
+              <button type="button" class="btn btn-xs btn-secondary" id="add-profile-lang-btn">+ Add Language</button>
+            </div>
+            <div id="profile-languages-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+          </div>
+
+          <!-- Professional Work Experience Manager -->
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h4 style="font-size: 1rem; font-weight: 700;">💼 Work Experience</h4>
+              <button type="button" class="btn btn-xs btn-secondary" id="add-profile-exp-btn">+ Add Experience</button>
+            </div>
+            <div id="profile-experience-container" style="display: flex; flex-direction: column; gap: 14px;"></div>
+          </div>
+
+          <!-- Education Manager -->
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h4 style="font-size: 1rem; font-weight: 700;">🎓 Education & Degrees</h4>
+              <button type="button" class="btn btn-xs btn-secondary" id="add-profile-edu-btn">+ Add Degree</button>
+            </div>
+            <div id="profile-education-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+          </div>
+
+          <!-- Target Sectors & Dealbreakers -->
+          <div class="form-row" style="border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 16px;">
+            <div class="form-group">
+              <label>Target Sectors (Comma-separated)</label>
+              <input type="text" class="form-input" id="prof-sectors" placeholder="e.g. AI & ML, Green Tech, FinTech">
+            </div>
+            <div class="form-group">
+              <label>Hard Dealbreakers (Comma-separated)</label>
+              <input type="text" class="form-input" id="prof-dealbreakers" placeholder="e.g. 100% on-site, Commute >45 min">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 18px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;" id="save-profile-btn">
+              💾 Save Profile & Update All Tools
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 10: CLI COMMAND REFERENCE & TERMINAL SIMULATOR
+         ===================================================================== -->
+    <section id="tab-cli" class="tab-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            CLI Command Simulator & Architecture
+          </h2>
+          <p class="section-subtitle">Interactive preview of the 6 core terminal commands that run on your machine.</p>
+        </div>
+      </div>
+
+      <div class="cli-buttons-row">
+        <button class="cli-demo-btn active" data-cmd="/scrape">/scrape</button>
+        <button class="cli-demo-btn" data-cmd="/rank">/rank</button>
+        <button class="cli-demo-btn" data-cmd="/apply">/apply</button>
+        <button class="cli-demo-btn" data-cmd="/interview">/interview</button>
+        <button class="cli-demo-btn" data-cmd="/outcome">/outcome</button>
+        <button class="cli-demo-btn" data-cmd="/setup">/setup</button>
+        <button class="cli-demo-btn" data-cmd="/html-report">/html-report</button>
+      </div>
+
+      <div class="cli-terminal-window">
+        <div class="terminal-titlebar">
+          <div class="terminal-dots">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+          </div>
+          <div class="terminal-title">bash &mdash; ai-job-search CLI session</div>
+          <div></div>
+        </div>
+        <div class="terminal-body" id="terminal-live-output"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+  <!-- Job Detail Modal -->
+  <div class="modal-overlay" id="job-detail-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modal-job-title">Job Title</h3>
+          <span style="font-size: 0.85rem; color: var(--text-dim);" id="modal-job-company">Company Details</span>
+        </div>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-job-body" style="white-space: pre-line;"></div>
+      <div class="modal-footer">
+        <a id="modal-job-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">Open Posting</a>
+        <button class="btn btn-sm btn-primary" id="modal-eval-btn">Evaluate Fit</button>
+        <button class="btn btn-sm btn-coral" id="modal-tailor-btn">Tailor Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Application Modal -->
+  <div class="modal-overlay" id="add-app-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Track New Application</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="new-application-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Company Name</label>
+              <input type="text" class="form-input" id="new-app-company" required>
+            </div>
+            <div class="form-group">
+              <label>Target Role</label>
+              <input type="text" class="form-input" id="new-app-role" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Sector</label>
+              <select class="form-select" id="new-app-sector">
+                <option value="Pharma / BioTech">Pharma / BioTech</option>
+                <option value="Green Tech & Energy">Green Tech & Energy</option>
+                <option value="FinTech / Enterprise">FinTech / Enterprise</option>
+                <option value="Logistics & Supply Chain">Logistics</option>
+                <option value="Medical Devices">Medical Devices</option>
+                <option value="IT Consulting">IT Consulting</option>
+                <option value="Software & SaaS">Software & SaaS</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select class="form-select" id="new-app-status">
+                <option value="drafted">Drafted</option>
+                <option value="applied">Active (Applied)</option>
+                <option value="interview">Interview</option>
+                <option value="offer">Offer</option>
+                <option value="hired">Hired</option>
+                <option value="rejected">Closed / Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Channel / Portal</label>
+              <input type="text" class="form-input" id="new-app-channel" value="Jobindex">
+            </div>
+            <div class="form-group">
+              <label>Role Type</label>
+              <input type="text" class="form-input" id="new-app-roletype" value="Full-time">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Application Date</label>
+              <input type="date" class="form-input" id="new-app-date">
+            </div>
+            <div class="form-group">
+              <label>Deadline</label>
+              <input type="date" class="form-input" id="new-app-deadline">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Contact Person</label>
+              <input type="text" class="form-input" id="new-app-contact">
+            </div>
+            <div class="form-group">
+              <label>Fit Rating (%)</label>
+              <input type="text" class="form-input" id="new-app-fit" value="90%">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Notes & Next Steps</label>
+            <textarea class="form-textarea" id="new-app-notes" rows="3"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Save to Tracker</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SITE FOOTER
+       ========================================================================= -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>AI Job Search Web Suite</strong> &bull; MIT Licensed Open Source Project
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/ai-job-search-dev/ai-job-search" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+        <a href="https://ko-fi.com/madslorentzen" target="_blank" rel="noopener noreferrer">Buy Pip a Coffee ☕</a>
+        <a href="#dashboard" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top &uarr;</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
+

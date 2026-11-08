@@ -1,0 +1,1031 @@
+/* ==========================================================================
+   AI Job Search - Extended Features Stylesheet
+   Animations, Confetti, Particles, Gamification, PWA, Drag & Drop, etc.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. SCROLL ANIMATIONS (IntersectionObserver fade-in / slide-up)
+   ========================================================================== */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.animate-on-scroll.animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-on-scroll.delay-1 { transition-delay: 0.1s; }
+.animate-on-scroll.delay-2 { transition-delay: 0.2s; }
+.animate-on-scroll.delay-3 { transition-delay: 0.3s; }
+.animate-on-scroll.delay-4 { transition-delay: 0.4s; }
+
+/* Card hover micro-interactions */
+.card-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-4px) scale(1.005);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+.pulse-dot {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Shimmer skeleton loader */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--bg-surface-elevated) 25%,
+    var(--bg-card-hover) 50%,
+    var(--bg-surface-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line { height: 14px; margin-bottom: 8px; }
+.skeleton-title { height: 22px; width: 60%; margin-bottom: 12px; }
+.skeleton-card { height: 180px; }
+
+/* ==========================================================================
+   2. PARTICLE BACKGROUND (Hero Section Canvas)
+   ========================================================================== */
+#particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   3. CONFETTI CELEBRATION
+   ========================================================================== */
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ==========================================================================
+   4. PIP MASCOT INTERACTIVE
+   ========================================================================== */
+.pip-mascot-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pip-bubble {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-prominent);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  max-width: 280px;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.pip-bubble.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.pip-bubble-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.pip-avatar-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--bg-card);
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: var(--shadow-md), 0 0 16px var(--primary-glow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pip-avatar-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg), 0 0 24px var(--primary-glow);
+}
+
+.pip-avatar-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================================================
+   5. HEATMAP CALENDAR (GitHub-style)
+   ========================================================================== */
+.heatmap-calendar-wrapper {
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.heatmap-grid {
+  display: inline-grid;
+  grid-template-rows: repeat(7, 14px);
+  grid-auto-flow: column;
+  gap: 3px;
+}
+
+.heatmap-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.heatmap-cell:hover {
+  border-color: var(--primary);
+  transform: scale(1.3);
+  z-index: 2;
+}
+
+.heatmap-cell[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-prominent);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+
+.heatmap-level-0 { background-color: var(--bg-surface-elevated); }
+.heatmap-level-1 { background-color: rgba(42, 157, 143, 0.25); }
+.heatmap-level-2 { background-color: rgba(42, 157, 143, 0.5); }
+.heatmap-level-3 { background-color: rgba(42, 157, 143, 0.75); }
+.heatmap-level-4 { background-color: var(--primary); }
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.heatmap-day-labels {
+  display: grid;
+  grid-template-rows: repeat(7, 14px);
+  gap: 3px;
+  margin-right: 6px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  align-items: center;
+}
+
+.heatmap-month-labels {
+  display: flex;
+  gap: 0;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  padding-left: 28px;
+}
+
+/* ==========================================================================
+   6. RADAR / SPIDER CHART (Job Comparison)
+   ========================================================================== */
+.radar-chart-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.radar-chart-container svg text {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   7. TIMELINE (Application History)
+   ========================================================================== */
+.timeline-vertical {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline-vertical::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--primary) 0%, var(--accent-coral) 100%);
+  border-radius: 1px;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -21px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  border: 2px solid var(--bg-base);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+  z-index: 1;
+}
+
+.timeline-dot.dot-active { background-color: var(--accent-green); box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.3); }
+.timeline-dot.dot-offer { background-color: var(--accent-coral); box-shadow: 0 0 0 3px var(--accent-coral-glow); }
+.timeline-dot.dot-closed { background-color: var(--text-dim); box-shadow: none; }
+
+.timeline-date {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.timeline-content {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   8. SALARY NEGOTIATION SIMULATOR
+   ========================================================================== */
+.nego-simulator-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.nego-gauge-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nego-range-bar {
+  width: 100%;
+  height: 32px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, var(--accent-danger) 0%, var(--accent-yellow) 35%, var(--accent-green) 65%, var(--primary) 100%);
+  position: relative;
+  margin: 12px 0;
+}
+
+.nego-marker {
+  position: absolute;
+  top: -8px;
+  width: 4px;
+  height: 48px;
+  background-color: var(--text-main);
+  border-radius: 2px;
+  transition: left 0.4s ease;
+}
+
+.nego-marker::after {
+  content: attr(data-label);
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.nego-result-box {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+}
+
+.nego-recommended-num {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: -0.03em;
+}
+
+/* ==========================================================================
+   9. GAMIFICATION — BADGES & ACHIEVEMENTS
+   ========================================================================== */
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.badge-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.badge-card.unlocked {
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
+.badge-card.locked {
+  opacity: 0.45;
+  filter: grayscale(0.8);
+}
+
+.badge-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.badge-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.badge-desc {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* Streak Counter */
+.streak-banner {
+  background: linear-gradient(135deg, var(--primary-glow) 0%, rgba(244, 112, 79, 0.1) 100%);
+  border: 1px solid var(--border-prominent);
+  border-radius: var(--radius-md);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.streak-fire {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.streak-count {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--accent-coral);
+}
+
+.streak-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   10. POMODORO TIMER
+   ========================================================================== */
+.pomodoro-widget {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  max-width: 360px;
+}
+
+.pomodoro-display {
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 2px;
+  margin: 16px 0;
+}
+
+.pomodoro-ring {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.pomodoro-ring svg {
+  transform: rotate(-90deg);
+}
+
+.pomodoro-ring .ring-bg {
+  fill: none;
+  stroke: var(--bg-surface-elevated);
+  stroke-width: 8;
+}
+
+.pomodoro-ring .ring-progress {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.pomodoro-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pomodoro-session-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   11. DRAG & DROP KANBAN STYLES
+   ========================================================================== */
+.kanban-item-card.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+  box-shadow: var(--shadow-lg);
+  cursor: grabbing;
+}
+
+.kanban-item-card[draggable="true"] {
+  cursor: grab;
+}
+
+.kanban-card-list.drag-over {
+  background-color: var(--primary-glow);
+  border-radius: var(--radius-sm);
+  min-height: 60px;
+}
+
+.drop-indicator {
+  height: 3px;
+  background-color: var(--primary);
+  border-radius: 2px;
+  margin: 4px 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.drop-indicator.visible {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   12. KEYBOARD SHORTCUTS MODAL
+   ========================================================================== */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-prominent);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   13. SEARCH HUB — Multi-Source Job Search Engine
+   ========================================================================== */
+.search-hub-bar {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-surface-elevated) 100%);
+  border: 2px solid var(--border-prominent);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.search-main-row {
+  display: flex;
+  gap: 10px;
+}
+
+.search-main-input {
+  flex: 1;
+  padding: 14px 18px 14px 44px;
+  background-color: var(--bg-base);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 1.05rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: border-color 0.2s ease;
+}
+
+.search-main-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.search-main-input::placeholder {
+  color: var(--text-dim);
+}
+
+.search-main-btn {
+  padding: 14px 28px;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.search-main-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.search-sources-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.source-chip:hover {
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+.source-chip.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.source-chip .source-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.source-dot.dot-jobindex { background-color: #0072b1; }
+.source-dot.dot-linkedin { background-color: #0a66c2; }
+.source-dot.dot-jobnet { background-color: #e63946; }
+.source-dot.dot-freehire { background-color: #52b788; }
+.source-dot.dot-jobbank { background-color: #e9c46a; }
+.source-dot.dot-jobdanmark { background-color: #f4704f; }
+.source-dot.dot-indeed { background-color: #2164f3; }
+.source-dot.dot-glassdoor { background-color: #0caa41; }
+.source-dot.dot-google { background-color: #4285f4; }
+
+.search-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search-filter-chip {
+  padding: 6px 12px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.search-filter-chip:hover, .search-filter-chip.active {
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+/* Auto-Search Indicator */
+.auto-search-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.auto-search-on {
+  background-color: rgba(82, 183, 136, 0.15);
+  color: var(--accent-green);
+  border: 1px solid rgba(82, 183, 136, 0.4);
+}
+
+.auto-search-off {
+  background-color: rgba(230, 57, 70, 0.15);
+  color: var(--accent-danger);
+  border: 1px solid rgba(230, 57, 70, 0.4);
+}
+
+/* Search Results Loading Spinner */
+@keyframes spin-loader {
+  to { transform: rotate(360deg); }
+}
+
+.search-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--bg-surface-elevated);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin-loader 0.7s linear infinite;
+}
+
+/* ==========================================================================
+   14. ENHANCED PROFILE SECTION
+   ========================================================================== */
+.profile-header-card {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.profile-avatar-ring {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.8rem;
+  background-color: var(--bg-surface-elevated);
+  box-shadow: 0 0 20px var(--primary-glow);
+  flex-shrink: 0;
+}
+
+.profile-identity h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.profile-identity .profile-headline {
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.profile-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.profile-completeness-bar {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.completeness-track {
+  flex: 1;
+  height: 6px;
+  background-color: var(--bg-surface-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 200px;
+}
+
+.completeness-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent-green));
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.profile-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.profile-section-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.profile-section-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Skills Tags with Proficiency Bars */
+.skill-tag-with-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.skill-bar-mini {
+  flex: 1;
+  height: 4px;
+  background-color: var(--bg-surface-elevated);
+  border-radius: 2px;
+  max-width: 120px;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background-color: var(--primary);
+}
+
+/* Language Proficiency Indicators */
+.lang-level-dots {
+  display: flex;
+  gap: 3px;
+}
+
+.lang-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.lang-dot.filled {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ==========================================================================
+   15. NOTIFICATIONS & TOAST SYSTEM
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-prominent);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  min-width: 300px;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  pointer-events: auto;
+  animation: toastIn 0.35s ease-out;
+}
+
+.toast.toast-out {
+  animation: toastOut 0.3s ease-in forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(40px); }
+}
+
+.toast-icon { font-size: 1.2rem; flex-shrink: 0; }
+.toast-success { border-left: 4px solid var(--accent-green); }
+.toast-info { border-left: 4px solid var(--accent-blue); }
+.toast-warning { border-left: 4px solid var(--accent-yellow); }
+.toast-error { border-left: 4px solid var(--accent-danger); }
+
+/* ==========================================================================
+   16. PROGRESS BAR (Weekly Application Goal)
+   ========================================================================== */
+.weekly-goal-bar {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+}
+
+.goal-track {
+  height: 12px;
+  background-color: var(--bg-surface-elevated);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.goal-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent-green) 100%);
+  transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+}
+
+.goal-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2));
+  border-radius: 6px;
+}
+
+/* ==========================================================================
+   17. RESPONSIVE TWEAKS FOR NEW FEATURES
+   ========================================================================== */
+@media (max-width: 860px) {
+  .nego-simulator-layout {
+    grid-template-columns: 1fr;
+  }
+  .search-main-row {
+    flex-direction: column;
+  }
+  .profile-header-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .shortcuts-grid {
+    grid-template-columns: 1fr;
+  }
+  .pip-mascot-container {
+    bottom: 12px;
+    right: 12px;
+  }
+}
+
+/* ==========================================================================
+   18. PRINT — Hide all chrome
+   ========================================================================== */
+@media print {
+  .pip-mascot-container,
+  .toast-container,
+  #confetti-canvas,
+  #particle-canvas,
+  .pomodoro-widget,
+  .streak-banner,
+  .badges-grid {
+    display: none !important;
+  }
+}
+
